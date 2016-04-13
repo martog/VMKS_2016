@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">BLE RC Car Controller</string>
+    <string name="progress_dialog">Searching…</string>
+</resources>
