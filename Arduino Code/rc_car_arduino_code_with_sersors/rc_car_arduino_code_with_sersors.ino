@@ -11,10 +11,10 @@
 BH1750FVI LightSensor;
 
 #define forward 6
-#define backward 5 
+#define backward 5
 #define right A0
 #define left 2
-#define trigPin 7 
+#define trigPin 7
 #define echoPin A1
 #define left_headlight 9
 #define right_headlight 3
@@ -22,10 +22,10 @@ BH1750FVI LightSensor;
 #define battery A2
 
 boolean auto_lights_flag = false;
-int speed_state = 2;
 boolean a_o_flag = false;
+short speed_state = 2;
 
-// ThreadController that will controll all threads
+// ThreadController that will control all threads
 ThreadController controll = ThreadController();
 
 Thread distanceThread = Thread();
@@ -34,26 +34,26 @@ Thread batteryThread = Thread();
 
 void setup()
 {
- 
-/*     Light Sensor pins
- 
-        VCC >>> 3.3V
-        SDA >>> A4
-        SCL >>> A5
-        addr >> A3
-        Gnd >>>Gnd
-*/
-    
+
+  /*     Light Sensor pins
+
+          VCC >>> 3.3V
+          SDA >>> A4
+          SCL >>> A5
+          addr >> A3
+          Gnd >>>Gnd
+  */
+
   ble_set_name("My RC Car"); // The name have to be under 10 letters
-  ble_set_pins(10,8); // setting the REQN, RDYN pins
-  
+  ble_set_pins(10, 8); // setting the REQN, RDYN pins
+
   Serial.begin(9600);
   LightSensor.begin();
 
   LightSensor.SetAddress(Device_Address_H);//Address 0x5C
   LightSensor.SetMode(Continuous_H_resolution_Mode);
-   
-  pinMode(echoPin,INPUT);
+
+  pinMode(echoPin, INPUT);
   pinMode(trigPin, OUTPUT);
   pinMode(forward, OUTPUT);
   pinMode(backward, OUTPUT);
@@ -63,56 +63,57 @@ void setup()
   pinMode(right_headlight, OUTPUT);
   pinMode(tail_lights, OUTPUT);
   pinMode(battery, INPUT);
+
   distanceThread.onRun(distance_sensor);
-  distanceThread.setInterval(500);
+  distanceThread.setInterval(200);
   lightThread.onRun(light_sensor);
-  lightThread.setInterval(300);
+  lightThread.setInterval(100);
   batteryThread.onRun(measure_battery);
   batteryThread.setInterval(3000);
   controll.add(&distanceThread);
   controll.add(&lightThread);
   controll.add(&batteryThread);
-  
+
   ble_begin();
 }
 
 void go_forward() {
-  analogWrite(forward,255);
-  delay(50);
-  switch(speed_state) {
+  analogWrite(forward, 255);
+  delay(60);
+  switch (speed_state) {
     case 1:
-      analogWrite(forward,135);
-    break;
+      analogWrite(forward, 135);
+      break;
     case 2:
-      analogWrite(forward,190);
-    break;
+      analogWrite(forward, 190);
+      break;
     case 3:
-    analogWrite(forward,255);
-    break;
+      analogWrite(forward, 255);
+      break;
   }
 }
 
-void go_backward(){
-  analogWrite(backward,255);
-  delay(50);
-  switch(speed_state) {
+void go_backward() {
+  analogWrite(backward, 255);
+  delay(60);
+  switch (speed_state) {
     case 1:
-      analogWrite(backward,135);
-    break;
+      analogWrite(backward, 135);
+      break;
     case 2:
-      analogWrite(backward,190);
-    break;
+      analogWrite(backward, 190);
+      break;
     case 3:
-    analogWrite(backward,255);
-    break;
+      analogWrite(backward, 255);
+      break;
   }
 }
 
-void go_right(){
+void go_right() {
   digitalWrite(right, HIGH);
 }
 
-void go_left(){
+void go_left() {
   digitalWrite(left, HIGH);
 }
 
@@ -145,93 +146,102 @@ void car_long_lights_on() {
 }
 
 void car_lights_off() {
-   analogWrite(left_headlight, 0);
-   analogWrite(right_headlight, 0);
-   digitalWrite(tail_lights, LOW);
+  analogWrite(left_headlight, 0);
+  analogWrite(right_headlight, 0);
+  digitalWrite(tail_lights, LOW);
 }
 
 void measure_battery() {
   int sensor_value = analogRead(battery);
   float voltage = sensor_value * (5.0 / 1023.0); // converting sensor value to voltage
-  String str ="b" + String(voltage) + " ";
+  String str = "b" + String(voltage) + " ";
   int buff_size = str.length();
   char buff[buff_size + 1];
-  
+
   str.toCharArray(buff, buff_size + 1);
   ble_write_bytes((unsigned char *)buff, buff_size);
-  
- // Serial.print("\n");
+
+  // Serial.print("\n");
   //Serial.print("Battery Voltage: ");
   //Serial.print(voltage);
- // Serial.print("\n");
+  // Serial.print("\n");
 }
- 
+
 void distance_sensor() {
   String dst;
-  //char buff[5];
+  int distance = measure_distance();
+  dst = "d" + String(distance) + " ";
+  int buff_size = dst.length();
+  char buff[buff_size + 1];
+
+  dst.toCharArray(buff, buff_size + 1);
+  ble_write_bytes((unsigned char *)buff, buff_size);
+  
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.print("\n");
+  
+  if(a_o_flag) {
+    go_forward();
+    if (distance <= 20 && distance > 0) {
+      stop_forward();
+      while(measure_distance() < 20) {
+        go_backward();
+      }
+      stop_backward();
+      delay(2000);
+      go_right();
+      go_forward();
+      delay(1400);
+      stop_right();
+      go_left();
+      delay(620);
+      stop_left();
+      stop_forward();
+    }
+  }
+}
+
+int measure_distance() { 
   int duration, distance;
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(1000); //pauses the program for 1 millisecond
   digitalWrite(trigPin, LOW);
-  
-  duration = pulseIn(echoPin,HIGH);
-  distance = (duration/2) / 29.1;
-  dst ="d" + String(distance) + " ";
-  
-  int buff_size = dst.length();
-  char buff[buff_size + 1];
-  
-  dst.toCharArray(buff,buff_size + 1);
-  ble_write_bytes((unsigned char *)buff, buff_size);
-
-  if(a_o_flag){
-    go_forward();
-    if(distance <= 15 && distance > 0) {
-        stop_forward();
-        go_backward();
-        delay(1100);
-        stop_backward();
-        delay(3000);
-        go_right();
-        go_forward();
-        delay(1700);
-        stop_right();
-        go_left();
-        delay(600);
-        stop_left();
-    }
-  }
+  duration = pulseIn(echoPin, HIGH);
+  distance = (duration / 2) / 29.1;
+  return distance;
 }
-void light_sensor(){
+
+void light_sensor() {
   uint16_t light_sen_lux = LightSensor.GetLightIntensity();// Get Lux value
-  String light ="l" + String(light_sen_lux) + " ";
-  
+  String light = "l" + String(light_sen_lux) + " ";
+
   int buff_size = light.length();
   char buff[buff_size + 1];
 
   light.toCharArray(buff, buff_size + 1);
   ble_write_bytes((unsigned char *)buff, buff_size);
 
-  if(auto_lights_flag){
-     int auto_light = light_sen_lux/212;
-     if(auto_light < 15){
-      auto_light = auto_light * 17; 
-     }
-     
-     if(auto_light >= 255){
-        auto_light = 255;
-     }
+  if (auto_lights_flag) {
+    int auto_light = light_sen_lux / 212;
+    if (auto_light < 15) {
+      auto_light = auto_light * 17;
+    }
 
-      analogWrite(left_headlight,255 - auto_light);
-      analogWrite(right_headlight,255 - auto_light);
-      digitalWrite(tail_lights, HIGH);
-     
+    if (auto_light >= 255) {
+      auto_light = 255;
+    }
 
-   // Serial.print("Light AUTO: ");
+    analogWrite(left_headlight, 255 - auto_light);
+    analogWrite(right_headlight, 255 - auto_light);
+    digitalWrite(tail_lights, HIGH);
+
+
+    // Serial.print("Light AUTO: ");
     //Serial.print(auto_light);
     //Serial.print("\n");
   }
-  
+
   //Serial.print("ORIGINAL Light: ");
   //Serial.print(light_sen_lux);
   //Serial.print(" lux");
@@ -240,45 +250,47 @@ void light_sensor(){
 
 void loop()
 {
-  switch(ble_read()){
+  switch (ble_read()) {
     case 'f': go_forward();
-    break;
+      break;
     case 'b': go_backward();
-    break;
+      break;
     case 'r': go_right();
-    break;
+      break;
     case 'l': go_left();
-    break;
+      break;
     case 'k': stop_forward();
-    break;
+      break;
     case 'g': stop_backward();
-    break;
+      break;
     case 'j': stop_right();
-    break;
+      break;
     case 'h': stop_left();
-    break; 
+      break;
     case 'n': car_short_lights_on();
-    break;
+      break;
     case 'm': car_long_lights_on();
-    break;
+      break;
     case 'v': car_lights_off();
-    break;
+      break;
     case 'x': auto_lights_flag = true;
-    break;
-    case 'z': 
+      break;
+    case 'z':
       auto_lights_flag = false;
       car_lights_off();
-    break;
+      break;
     case '1': speed_state = 1;
-    break;
+      break;
     case '2': speed_state = 2;
-    break;
+      break;
     case '3': speed_state = 3;
-    break;
+      break;
     case 'p': a_o_flag = true;
-    break;
-    case 'o': a_o_flag = false;
-    break;
+      break;
+    case 'o': 
+      a_o_flag = false;
+      stop_forward();
+      break;
   }
   ble_do_events();
   controll.run();
