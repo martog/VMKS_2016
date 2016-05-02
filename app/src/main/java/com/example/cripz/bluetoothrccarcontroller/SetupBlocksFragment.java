@@ -177,6 +177,8 @@ public class SetupBlocksFragment extends Fragment implements AdapterView.OnItemS
 
 
     private void setCondition() {
+        //Do action until event happens - 1
+        //Wait for event to happen and then do action - 2
         final String[] conditions = {"Do action until event happens", "Wait for event to happen and then do action"};
         new MaterialDialog.Builder(getActivity())
                 .title("Select Condition")

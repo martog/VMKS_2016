@@ -21,13 +21,16 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
+
+
+
+
+
 
 public class ProgrammingFragment extends Fragment {
     private View rootView;
-    
+
     private void sendMessage(String msg) {
         ((Main)(getActivity())).sendMessage(msg);
     }
@@ -119,7 +122,7 @@ public class ProgrammingFragment extends Fragment {
 
     }
 
-    private void doAction(String file_string,String action ){
+    private void doAction(String action ){
         switch(action){
             case "go_forward":
                 sendMessage("f"); //go forward
@@ -181,7 +184,64 @@ public class ProgrammingFragment extends Fragment {
 
 
     }
-    
+
+    public static boolean eventHappen(String sSign, String sType, String sValue){
+        boolean flag = false;
+       // int realTimeDistance = ((Main)getActivity()).getDistanceValue();
+        //int realTimeLight = ((Main)getActivity()).getLightValue();
+        if(sType.equals("distance")){
+            switch(sSign){
+                case "<":
+                    if(Main.distanceInt < Integer.parseInt(sValue)){
+                        flag = true;
+                    }else {
+                        flag = false;
+                    }
+                break;
+                case ">":
+                    if(Main.distanceInt > Integer.parseInt(sValue)){
+                        flag = true;
+                    }else {
+                        flag = false;
+                    }
+                break;
+                case "=":
+                    if(Main.distanceInt == Integer.parseInt(sValue)){
+                        flag = true;
+                    }else {
+                        flag = false;
+                    }
+                break;
+            }
+        }else if(sType.equals("light")) {
+            switch(sSign){
+                case "<":
+                    if(Main.lightInt < Integer.parseInt(sValue)){
+                        flag = true;
+                    }else {
+                        flag = false;
+                    }
+                    break;
+                case ">":
+                    if(Main.lightInt > Integer.parseInt(sValue)){
+                        flag = true;
+                    }else {
+                        flag = false;
+                    }
+                    break;
+                case "=":
+                    if(Main.lightInt == Integer.parseInt(sValue)){
+                        flag = true;
+                    }else {
+                        flag = false;
+                    }
+                    break;
+            }
+        }
+        return flag;
+    }
+
+
     private void runProgram(String file_string){
         try {
             JSONObject obj = new JSONObject(fileRead(file_string));
@@ -190,18 +250,45 @@ public class ProgrammingFragment extends Fragment {
             String sensorSign = (String) obj.get("sensorSign");
             String sensorType = (String) obj.get("sensorType");
             String sensorValue = (String) obj.get("sensorValue");
-            int sensorValueInt = Integer.parseInt(sensorValue);
-            int realTimeDistance = ((Main)getActivity()).getDistanceValue();
-            int realTimeLight = ((Main)getActivity()).getLightValue();
 
+            //Do action until event happens - 1
+            //Wait for event to happen and then do action - 2
 
-            Log.d("fr","condition: " + condition);
-            Log.d("fr","action: " + action);
-            Log.d("fr","sensorSign: " + sensorSign);
-            Log.d("fr","sensorType: " + sensorType);
-            Log.d("fr","sensorValue: " + sensorValue);
-            Log.d("fr","-------DistanceInt: "  + ((Main)getActivity()).getDistanceValue() + " ---------");
-            Log.d("fr","-------LightInt: "  + ((Main)getActivity()).getLightValue() + " ---------");
+            if(condition.equals("Do action until event happens")){
+                Log.d("dsa", "Do action...");
+                doAction(action);
+                Log.d("dsa", "event: False");
+                if(eventHappen(sensorSign, sensorType, sensorValue)){
+                    doAction("stay");
+                    Log.d("dsa", "event: True");
+                }
+            }else if(condition.equals("Wait for event to happen and then do action")){
+                Log.d("dsa", "Wait for event...");
+                if(eventHappen(sensorSign, sensorType, sensorValue)){
+                    Log.d("dsa", "event: True");
+                    Log.d("dsa", "action: " + action);
+                    doAction(action);
+                }else{
+                    doAction("stay");
+                    Log.d("dsa", "event: False");
+                }
+            }
+//                if(eventHappen(sensorSign, sensorType, sensorValue)){
+//                    doAction(action);
+//                   Log.d("asd", "event: True");
+//                }else{
+//                    Log.d("asd", "event: False");
+//                }
+               // Log.d("asd","distanceInt:  " + Main.distanceInt);
+                //Log.d("asd","lightInt:  " + Main.lightInt);
+
+//            Log.d("fr","condition: " + condition);
+//            Log.d("fr","action: " + action);
+//            Log.d("fr","sensorSign: " + sensorSign);
+//            Log.d("fr","sensorType: " + sensorType);
+//            Log.d("fr","sensorValue: " + sensorValue);
+//            Log.d("fr","-------DistanceInt: "  + ((Main)getActivity()).getDistanceValue() + " ---------");
+//            Log.d("fr","-------LightInt: "  + ((Main)getActivity()).getLightValue() + " ---------");
 
 
 
@@ -209,7 +296,7 @@ public class ProgrammingFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        
+
     }
 
     private void buttonInit() {

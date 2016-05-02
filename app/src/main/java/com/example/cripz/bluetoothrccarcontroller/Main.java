@@ -39,8 +39,8 @@ public class Main extends MenuActivity {
     private Boolean autoLightsFlag = false;
     public static Boolean shortLightsFlag = false;
     private Boolean longLightsFlag = false;
-    private int lightInt;
-    private int distanceInt;
+    public static int lightInt;
+    public static int distanceInt;
     private String mDeviceName;
     private String mDeviceAddress;
     private static RBLService mBluetoothLeService;
@@ -68,13 +68,13 @@ public class Main extends MenuActivity {
         }
     };
 
-    public int getDistanceValue() {
-        return distanceInt;
-    }
-
-    public int getLightValue() {
-        return lightInt;
-    }
+//    public int getDistanceValue() {
+//        return distanceInt;
+//    }
+//
+//    public int getLightValue() {
+//        return lightInt;
+//    }
 
     private void displayData(byte[] data) {
 
@@ -91,14 +91,14 @@ public class Main extends MenuActivity {
                 TextView distance = (TextView) findViewById(R.id.distanceId);
                 bytesAsString = bytesAsString.split("d")[1].split(" ")[0];
                 Log.d("fr", "Distance:  " + bytesAsString);
-                //distanceInt = Integer.parseInt(bytesAsString);
+                distanceInt = Integer.parseInt(bytesAsString);
                 distance.setText("Distance: " + bytesAsString + " cm");
             } else if (bytesAsString.contains("l")) {
                 TextView light = (TextView) findViewById(R.id.lightId);
                 bytesAsString = bytesAsString.split("l")[1].split(" ")[0];
                 Log.d("fr", "Light:  " + bytesAsString);
                 light.setText("Light: " + bytesAsString + " lux");
-                //lightInt = Integer.parseInt(bytesAsString);
+                lightInt = Integer.parseInt(bytesAsString);
             } else if (bytesAsString.contains("b")) {
                 bytesAsString = bytesAsString.split("b")[1].split(" ")[0];
                 Log.d("fr", "Battery:  " + bytesAsString);
