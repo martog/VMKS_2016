@@ -24,16 +24,14 @@ import java.io.FileReader;
 import java.io.IOException;
 
 
-
-
-
-
 public class ProgrammingFragment extends Fragment {
     private View rootView;
+    private boolean eventHappenFlag;
 
     private void sendMessage(String msg) {
-        ((Main)(getActivity())).sendMessage(msg);
+        ((Main) (getActivity())).sendMessage(msg);
     }
+
     public void showFilesInDirectory(String filesType) {
         int jsonCounter = 0;
         File programs[] = new File(getActivity().getFilesDir().getPath()).listFiles();
@@ -43,11 +41,11 @@ public class ProgrammingFragment extends Fragment {
             }
         }
 
-        if(jsonCounter > 0){
+        if (jsonCounter > 0) {
             final String prList[] = new String[jsonCounter];
             int arrayCounter = 0;
-            for(File program : programs){
-                if(program.getName().contains(filesType)){
+            for (File program : programs) {
+                if (program.getName().contains(filesType)) {
                     prList[arrayCounter] = program.getName();
                     arrayCounter++;
                 }
@@ -58,7 +56,7 @@ public class ProgrammingFragment extends Fragment {
                     .itemsCallback(new MaterialDialog.ListCallback() {
                         @Override
                         public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                           runProgram(prList[which]);
+                            runProgram(prList[which]);
                         }
                     })
                     .show();
@@ -110,20 +108,20 @@ public class ProgrammingFragment extends Fragment {
                 text = text + "\n";
             }
             br.close();
-            
+
             return text;
 
         } catch (IOException e) {
             Toast.makeText(getActivity(), "Can't open file", Toast.LENGTH_SHORT).show();
         }
-        
+
 
         return text;
 
     }
 
-    private void doAction(String action ){
-        switch(action){
+    private void doAction(String action) {
+        switch (action) {
             case "go_forward":
                 sendMessage("f"); //go forward
                 sendMessage("g"); //stop backward
@@ -173,7 +171,7 @@ public class ProgrammingFragment extends Fragment {
                 sendMessage("j"); //stop right
                 sendMessage("n"); //lights_on
                 break;
-            case  "lights_off":
+            case "lights_off":
                 sendMessage("k"); //stop forward
                 sendMessage("g"); //stop backward
                 sendMessage("h"); //stop left
@@ -185,68 +183,66 @@ public class ProgrammingFragment extends Fragment {
 
     }
 
-    public static boolean eventHappen(String sSign, String sType, String sValue){
-        boolean flag = false;
-       // int realTimeDistance = ((Main)getActivity()).getDistanceValue();
+    public void eventHappen(String sSign, String sType, String sValue) {
+        // int realTimeDistance = ((Main)getActivity()).getDistanceValue();
         //int realTimeLight = ((Main)getActivity()).getLightValue();
-        if(sType.equals("distance")){
-            switch(sSign){
+        if (sType.equals("distance")) {
+            switch (sSign) {
                 case "<":
-                    if(Main.distanceInt < Integer.parseInt(sValue)){
-                        flag = true;
-                    }else {
-                        flag = false;
+                    if (Main.distanceInt < Integer.parseInt(sValue)) {
+                        eventHappenFlag = true;
+                    } else {
+                        eventHappenFlag = false;
                     }
-                break;
+                    break;
                 case ">":
-                    if(Main.distanceInt > Integer.parseInt(sValue)){
-                        flag = true;
-                    }else {
-                        flag = false;
+                    if (Main.distanceInt > Integer.parseInt(sValue)) {
+                        eventHappenFlag = true;
+                    } else {
+                        eventHappenFlag = false;
                     }
-                break;
+                    break;
                 case "=":
-                    if(Main.distanceInt == Integer.parseInt(sValue)){
-                        flag = true;
-                    }else {
-                        flag = false;
+                    if (Main.distanceInt == Integer.parseInt(sValue)) {
+                        eventHappenFlag = true;
+                    } else {
+                        eventHappenFlag = false;
                     }
-                break;
+                    break;
             }
-        }else if(sType.equals("light")) {
-            switch(sSign){
+        } else if (sType.equals("light")) {
+            switch (sSign) {
                 case "<":
-                    if(Main.lightInt < Integer.parseInt(sValue)){
-                        flag = true;
-                    }else {
-                        flag = false;
+                    if (Main.lightInt < Integer.parseInt(sValue)) {
+                        eventHappenFlag = true;
+                    } else {
+                        eventHappenFlag = false;
                     }
                     break;
                 case ">":
-                    if(Main.lightInt > Integer.parseInt(sValue)){
-                        flag = true;
-                    }else {
-                        flag = false;
+                    if (Main.lightInt > Integer.parseInt(sValue)) {
+                        eventHappenFlag = true;
+                    } else {
+                        eventHappenFlag = false;
                     }
                     break;
                 case "=":
-                    if(Main.lightInt == Integer.parseInt(sValue)){
-                        flag = true;
-                    }else {
-                        flag = false;
+                    if (Main.lightInt == Integer.parseInt(sValue)) {
+                        eventHappenFlag = true;
+                    } else {
+                        eventHappenFlag = false;
                     }
                     break;
             }
         }
-        return flag;
     }
 
 
-    private void runProgram(String file_string){
+    private void runProgram(String file_string) {
         try {
             JSONObject obj = new JSONObject(fileRead(file_string));
-           String action = (String) obj.get("action");
-           String condition = (String) obj.get("condition");
+            String action = (String) obj.get("action");
+            String condition = (String) obj.get("condition");
             String sensorSign = (String) obj.get("sensorSign");
             String sensorType = (String) obj.get("sensorType");
             String sensorValue = (String) obj.get("sensorValue");
@@ -254,19 +250,23 @@ public class ProgrammingFragment extends Fragment {
             //Do action until event happens - 1
             //Wait for event to happen and then do action - 2
 
-            if(condition.equals("Do action until event happens")){
+            if (condition.equals("Do action until event happens")) {
                 Log.d("dsa", "Do action...");
                 doAction(action);
                 Log.d("dsa", "event: False");
-                while(!eventHappen(sensorSign, sensorType, sensorValue)) {}
+                while (!eventHappenFlag) {
+                    eventHappen(sensorSign, sensorType, sensorValue);
+                }
                 doAction("stay");
                 Log.d("dsa", "event: True");
 
-            }else if(condition.equals("Wait for event to happen and then do action")){
+            } else if (condition.equals("Wait for event to happen and then do action")) {
                 Log.d("dsa", "Wait for event...");
                 doAction("stay");
                 Log.d("dsa", "event: False");
-                while(!eventHappen(sensorSign, sensorType, sensorValue)) {}
+                while (!eventHappenFlag) {
+                    eventHappen(sensorSign, sensorType, sensorValue);
+                }
                 doAction(action);
                 Log.d("dsa", "event: True");
                 Log.d("dsa", "action: " + action);
@@ -277,8 +277,8 @@ public class ProgrammingFragment extends Fragment {
 //                }else{
 //                    Log.d("asd", "event: False");
 //                }
-               // Log.d("asd","distanceInt:  " + Main.distanceInt);
-                //Log.d("asd","lightInt:  " + Main.lightInt);
+            // Log.d("asd","distanceInt:  " + Main.distanceInt);
+            //Log.d("asd","lightInt:  " + Main.lightInt);
 
 //            Log.d("fr","condition: " + condition);
 //            Log.d("fr","action: " + action);
@@ -287,8 +287,6 @@ public class ProgrammingFragment extends Fragment {
 //            Log.d("fr","sensorValue: " + sensorValue);
 //            Log.d("fr","-------DistanceInt: "  + ((Main)getActivity()).getDistanceValue() + " ---------");
 //            Log.d("fr","-------LightInt: "  + ((Main)getActivity()).getLightValue() + " ---------");
-
-
 
 
         } catch (JSONException e) {
