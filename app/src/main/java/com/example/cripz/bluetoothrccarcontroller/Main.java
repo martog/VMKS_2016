@@ -68,13 +68,6 @@ public class Main extends MenuActivity {
         }
     };
 
-//    public int getDistanceValue() {
-//        return distanceInt;
-//    }
-//
-//    public int getLightValue() {
-//        return lightInt;
-//    }
 
     private void displayData(byte[] data) {
 
@@ -90,7 +83,7 @@ public class Main extends MenuActivity {
             if (bytesAsString.contains("d")) {
                 TextView distance = (TextView) findViewById(R.id.distanceId);
                 bytesAsString = bytesAsString.split("d")[1].split(" ")[0];
-                Log.d("fr", "Distance:  " + bytesAsString);
+               // Log.d("fr", "Distance:  " + bytesAsString);
                 distanceInt = Integer.parseInt(bytesAsString);
                 distance.setText("Distance: " + bytesAsString + " cm");
             } else if (bytesAsString.contains("l")) {
@@ -106,6 +99,15 @@ public class Main extends MenuActivity {
             }
         }
     }
+
+//    public int getDistanceValue() {
+//        Log.d("fr", "Distance:  " + distanceInt);
+//        return distanceInt;
+//    }
+
+//    public int getLightValue() {
+//        return lightInt;
+//    }
 
     private void setBatteryImage(float voltage) {
         if (voltage > 4.00) {
