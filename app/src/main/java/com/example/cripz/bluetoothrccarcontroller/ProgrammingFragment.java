@@ -258,20 +258,18 @@ public class ProgrammingFragment extends Fragment {
                 Log.d("dsa", "Do action...");
                 doAction(action);
                 Log.d("dsa", "event: False");
-                if(eventHappen(sensorSign, sensorType, sensorValue)){
-                    doAction("stay");
-                    Log.d("dsa", "event: True");
-                }
+                while(!eventHappen(sensorSign, sensorType, sensorValue)) {}
+                doAction("stay");
+                Log.d("dsa", "event: True");
+
             }else if(condition.equals("Wait for event to happen and then do action")){
                 Log.d("dsa", "Wait for event...");
-                if(eventHappen(sensorSign, sensorType, sensorValue)){
-                    Log.d("dsa", "event: True");
-                    Log.d("dsa", "action: " + action);
-                    doAction(action);
-                }else{
-                    doAction("stay");
-                    Log.d("dsa", "event: False");
-                }
+                doAction("stay");
+                Log.d("dsa", "event: False");
+                while(!eventHappen(sensorSign, sensorType, sensorValue)) {}
+                doAction(action);
+                Log.d("dsa", "event: True");
+                Log.d("dsa", "action: " + action);
             }
 //                if(eventHappen(sensorSign, sensorType, sensorValue)){
 //                    doAction(action);
