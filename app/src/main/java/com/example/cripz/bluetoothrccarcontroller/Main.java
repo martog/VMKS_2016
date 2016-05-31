@@ -126,6 +126,72 @@ public class Main extends MenuActivity {
         return eventHappenFlag;
     }
 
+    private void doAction(String action) {
+        switch (action) {
+            case "go_forward":
+                sendMessage("f"); //go forward
+                sendMessage("g"); //stop backward
+                sendMessage("h"); //stop left
+                sendMessage("j"); //stop right
+                break;
+            case "go_backward":
+                sendMessage("k"); //stop forward
+                sendMessage("b"); //go backward
+                sendMessage("h"); //stop left
+                sendMessage("j"); //stop right
+                break;
+            case "go_forward_right":
+                sendMessage("f"); //go forward
+                sendMessage("g"); //stop backward
+                sendMessage("h"); //stop left
+                sendMessage("r"); //go right
+                break;
+            case "go_forward_left":
+                sendMessage("f"); //go forward
+                sendMessage("g"); //stop backward
+                sendMessage("l"); //go left
+                sendMessage("j"); //stop right
+                break;
+            case "go_backward_right":
+                sendMessage("k"); //stop forward
+                sendMessage("b"); //go backward
+                sendMessage("h"); //stop left
+                sendMessage("r"); //go right
+                break;
+            case "go_backward_left":
+                sendMessage("k"); //stop forward
+                sendMessage("b"); //go backward
+                sendMessage("l"); //go left
+                sendMessage("j"); //stop right
+                break;
+            case "stay":
+                sendMessage("v"); //lights_off
+                sendMessage("k"); //stop forward
+                sendMessage("g"); //stop backward
+                sendMessage("h"); //stop left
+                sendMessage("j"); //stop right
+                Log.d("aaa", "Stay called...");
+
+                break;
+            case "lights_on":
+                sendMessage("k"); //stop forward
+                sendMessage("g"); //stop backward
+                sendMessage("h"); //stop left
+                sendMessage("j"); //stop right
+                sendMessage("n"); //lights_on
+                break;
+            case "lights_off":
+                sendMessage("k"); //stop forward
+                sendMessage("g"); //stop backward
+                sendMessage("h"); //stop left
+                sendMessage("j"); //stop right
+                sendMessage("v"); //lights_off
+
+        }
+
+
+    }
+
     private void displayData(byte[] data) {
 
         String bytesAsString = null;
@@ -140,7 +206,7 @@ public class Main extends MenuActivity {
             if (bytesAsString.contains("d")) {
                 TextView distance = (TextView) findViewById(R.id.distanceId);
                 bytesAsString = bytesAsString.split("d")[1].split(" ")[0];
-               // Log.d("fr", "Distance:  " + bytesAsString);
+                // Log.d("fr", "Distance:  " + bytesAsString);
                 distanceInt = Integer.parseInt(bytesAsString);
                 distance.setText("Distance: " + bytesAsString + " cm");
             } else if (bytesAsString.contains("l")) {
@@ -155,11 +221,26 @@ public class Main extends MenuActivity {
                 setBatteryImage(Float.parseFloat(bytesAsString));
             }
 
-            if(ProgrammingFragment.runProgramFlag){
-                eventHappen(ProgrammingFragment.sensorSign,ProgrammingFragment.sensorType,ProgrammingFragment.sensorValue);
+            if (ProgrammingFragment.runProgramFlag) {
+                if (ProgrammingFragment.condition.equals("Do action until event happens")) {
+                    Log.d("aaa", "Do action...");
+                    doAction(ProgrammingFragment.action);
+                    if (eventHappen(ProgrammingFragment.sensorSign, ProgrammingFragment.sensorType, ProgrammingFragment.sensorValue)) {
+                        doAction("stay");
+                        ProgrammingFragment.runProgramFlag = false;
+                    }
+                } else if (ProgrammingFragment.condition.equals("Wait for event to happen and then do action")) {
+                    Log.d("aaa", "Wait for event...");
+                    if (eventHappen(ProgrammingFragment.sensorSign, ProgrammingFragment.sensorType, ProgrammingFragment.sensorValue)) {
+                        doAction(ProgrammingFragment.action);
+                        ProgrammingFragment.runProgramFlag = false;
+                        Log.d("asd", "event: True");
+                    }
+                    // eventHappen(ProgrammingFragment.sensorSign,ProgrammingFragment.sensorType,ProgrammingFragment.sensorValue);
+                }
+
+
             }
-
-
         }
     }
 
