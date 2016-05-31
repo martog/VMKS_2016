@@ -28,7 +28,12 @@ import static android.os.SystemClock.sleep;
 
 public class ProgrammingFragment extends Fragment {
     private View rootView;
-    private boolean eventHappenFlag;
+    public static boolean runProgramFlag = false;
+    public static String action = "";
+    public static String condition = "";
+    public static String sensorSign = "";
+    public static String sensorType = "";
+    public static String sensorValue = "";
 
     private void sendMessage(String msg) {
         ((Main) (getActivity())).sendMessage(msg);
@@ -59,6 +64,7 @@ public class ProgrammingFragment extends Fragment {
                         @Override
                         public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
                             runProgram(prList[which]);
+                            runProgramFlag = true;
                         }
                     })
                     .show();
@@ -185,109 +191,56 @@ public class ProgrammingFragment extends Fragment {
 
     }
 
-    public boolean eventHappen(String sSign, String sType, String sValue) {
-        //int realTimeLight = ((Main)getActivity()).getLightValue();
-        Log.d("fr", "dst:" + Main.distanceInt + " <-----" );
-        if (sType.equals("distance")) {
-            switch (sSign) {
-                case "<":
-                    if (Main.distanceInt < Integer.parseInt(sValue)) {
-                        eventHappenFlag = true;
-                    } else {
-                        eventHappenFlag = false;
-                    }
-                    break;
-                case ">":
-                    if (Main.distanceInt > Integer.parseInt(sValue)) {
-                        eventHappenFlag = true;
-                    } else {
-                        eventHappenFlag = false;
-                    }
-                    break;
-                case "=":
-                    if (Main.distanceInt == Integer.parseInt(sValue)) {
-                        eventHappenFlag = true;
-                    } else {
-                        eventHappenFlag = false;
-                    }
-                    break;
-            }
-        } else if (sType.equals("light")) {
-            switch (sSign) {
-                case "<":
-                    if (Main.lightInt < Integer.parseInt(sValue)) {
-                        eventHappenFlag = true;
-                    } else {
-                        eventHappenFlag = false;
-                    }
-                    break;
-                case ">":
-                    if (Main.lightInt > Integer.parseInt(sValue)) {
-                        eventHappenFlag = true;
-                    } else {
-                        eventHappenFlag = false;
-                    }
-                    break;
-                case "=":
-                    if (Main.lightInt == Integer.parseInt(sValue)) {
-                        eventHappenFlag = true;
-                    } else {
-                        eventHappenFlag = false;
-                    }
-                    break;
-            }
-        }
-        return eventHappenFlag;
-    }
+
 
 
     private void runProgram(String file_string) {
         try {
             JSONObject obj = new JSONObject(fileRead(file_string));
-            String action = (String) obj.get("action");
-            String condition = (String) obj.get("condition");
-            String sensorSign = (String) obj.get("sensorSign");
-            String sensorType = (String) obj.get("sensorType");
-            String sensorValue = (String) obj.get("sensorValue");
+            action = (String) obj.get("action");
+            condition = (String) obj.get("condition");
+            sensorSign = (String) obj.get("sensorSign");
+            sensorType = (String) obj.get("sensorType");
+            sensorValue = (String) obj.get("sensorValue");
 
-            eventHappen(sensorSign, sensorType, sensorValue);
-            Log.d("fr", "eventFlag: " + eventHappen(sensorSign, sensorType, sensorValue));
-
-
-
-            //Do action until event happens - 1
-            //Wait for event to happen and then do action - 2
-
-
-            if (condition.equals("Do action until event happens")) {
-                Log.d("dsa", "Do action...");
-                doAction(action);
-                if(eventHappen(sensorSign,sensorType,sensorValue)){
-                    doAction("stay");
-                }
-
-            } else if (condition.equals("Wait for event to happen and then do action")) {
-                Log.d("dsa", "Wait for event...");
-                if (eventHappen(sensorSign, sensorType, sensorValue)) {
-                    doAction(action);
-                    Log.d("asd", "event: True");
-                } else {
-                    Log.d("asd", "event: False");
-                }
-                // Log.d("asd","distanceInt:  " + Main.distanceInt);
-                //Log.d("asd","lightInt:  " + Main.lightInt);
-
-//            Log.d("fr","condition: " + condition);
-//            Log.d("fr","action: " + action);
-//            Log.d("fr","sensorSign: " + sensorSign);
-//            Log.d("fr","sensorType: " + sensorType);
-//            Log.d("fr","sensorValue: " + sensorValue);
-
-//            Log.d("fr", "-------DistanceInt: " + ((Main) getActivity()).getDistanceValue() + " ---------");
-
-//            Log.d("fr","-------LightInt: "  + ((Main)getActivity()).getLightValue() + " ---------");
-
-            }
+//            eventHappen(sensorSign, sensorType, sensorValue);
+//            Log.d("fr", "eventFlag: " + eventHappen(sensorSign, sensorType, sensorValue));
+//
+//
+//
+//            //Do action until event happens - 1
+//            //Wait for event to happen and then do action - 2
+//
+//
+//            if (condition.equals("Do action until event happens")) {
+//                Log.d("dsa", "Do action...");
+//                doAction(action);
+//                if(eventHappen(sensorSign,sensorType,sensorValue)){
+//                    doAction("stay");
+//                }
+//
+//            } else if (condition.equals("Wait for event to happen and then do action")) {
+//                Log.d("dsa", "Wait for event...");
+//                if (eventHappen(sensorSign, sensorType, sensorValue)) {
+//                    doAction(action);
+//                    Log.d("asd", "event: True");
+//                } else {
+//                    Log.d("asd", "event: False");
+//                }
+//                // Log.d("asd","distanceInt:  " + Main.distanceInt);
+//                //Log.d("asd","lightInt:  " + Main.lightInt);
+//
+////            Log.d("fr","condition: " + condition);
+////            Log.d("fr","action: " + action);
+////            Log.d("fr","sensorSign: " + sensorSign);
+////            Log.d("fr","sensorType: " + sensorType);
+////            Log.d("fr","sensorValue: " + sensorValue);
+//
+////            Log.d("fr", "-------DistanceInt: " + ((Main) getActivity()).getDistanceValue() + " ---------");
+//
+////            Log.d("fr","-------LightInt: "  + ((Main)getActivity()).getLightValue() + " ---------");
+//
+//            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

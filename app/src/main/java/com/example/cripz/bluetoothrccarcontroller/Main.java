@@ -32,6 +32,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 public class Main extends MenuActivity {
+    ProgrammingFragment eventHappenInst = new ProgrammingFragment();
 
     FragmentManager manager;
     public static ImageButton carLights;
@@ -39,12 +40,13 @@ public class Main extends MenuActivity {
     private Boolean autoLightsFlag = false;
     public static Boolean shortLightsFlag = false;
     private Boolean longLightsFlag = false;
-    public static int lightInt;
-    public static int distanceInt;
+    private  int lightInt;
+    private  int distanceInt;
     private String mDeviceName;
     private String mDeviceAddress;
     private static RBLService mBluetoothLeService;
     private static Main mainInstance = null;
+    private boolean eventHappenFlag;
     ImageView batteryView;
     private static HashMap<UUID, BluetoothGattCharacteristic> map = new HashMap<>();
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -68,6 +70,61 @@ public class Main extends MenuActivity {
         }
     };
 
+    public boolean eventHappen(String sSign, String sType, String sValue) {
+        //int realTimeLight = ((Main)getActivity()).getLightValue();
+        //Log.d("fr", "dst:" + distanceInt + " <-----" );
+        if (sType.equals("distance")) {
+            switch (sSign) {
+                case "<":
+                    if (distanceInt < Integer.parseInt(sValue)) {
+                        eventHappenFlag = true;
+                    } else {
+                        eventHappenFlag = false;
+                    }
+                    break;
+                case ">":
+                    if (distanceInt > Integer.parseInt(sValue)) {
+                        eventHappenFlag = true;
+                    } else {
+                        eventHappenFlag = false;
+                    }
+                    break;
+                case "=":
+                    if (distanceInt == Integer.parseInt(sValue)) {
+                        eventHappenFlag = true;
+                    } else {
+                        eventHappenFlag = false;
+                    }
+                    break;
+            }
+        } else if (sType.equals("light")) {
+            switch (sSign) {
+                case "<":
+                    if (lightInt < Integer.parseInt(sValue)) {
+                        eventHappenFlag = true;
+                    } else {
+                        eventHappenFlag = false;
+                    }
+                    break;
+                case ">":
+                    if (lightInt > Integer.parseInt(sValue)) {
+                        eventHappenFlag = true;
+                    } else {
+                        eventHappenFlag = false;
+                    }
+                    break;
+                case "=":
+                    if (lightInt == Integer.parseInt(sValue)) {
+                        eventHappenFlag = true;
+                    } else {
+                        eventHappenFlag = false;
+                    }
+                    break;
+            }
+        }
+        Log.d("aaa", "eventHappenFlag: " + eventHappenFlag +" <-----" );
+        return eventHappenFlag;
+    }
 
     private void displayData(byte[] data) {
 
@@ -97,6 +154,12 @@ public class Main extends MenuActivity {
                 Log.d("fr", "Battery:  " + bytesAsString);
                 setBatteryImage(Float.parseFloat(bytesAsString));
             }
+
+            if(ProgrammingFragment.runProgramFlag){
+                eventHappen(ProgrammingFragment.sensorSign,ProgrammingFragment.sensorType,ProgrammingFragment.sensorValue);
+            }
+
+
         }
     }
 
