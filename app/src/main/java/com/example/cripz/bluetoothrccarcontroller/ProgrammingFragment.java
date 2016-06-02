@@ -1,8 +1,8 @@
 package com.example.cripz.bluetoothrccarcontroller;
 
 
-import android.app.FragmentManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -10,9 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.json.JSONException;
@@ -32,11 +32,8 @@ public class ProgrammingFragment extends Fragment {
     public static String sensorSign = "";
     public static String sensorType = "";
     public static String sensorValue = "";
+    private int selectedProgram;
 
-
-    private void sendMessage(String msg) {
-        ((Main)(getActivity())).sendMessage(msg);
-    }
 
     public void showFilesInDirectory(String filesType) {
 
@@ -58,14 +55,33 @@ public class ProgrammingFragment extends Fragment {
                     arrayCounter++;
                 }
             }
+
             new MaterialDialog.Builder(getActivity())
                     .title("Programs")
                     .items(prList)
-                    .itemsCallback(new MaterialDialog.ListCallback() {
+                    .itemsCallbackSingleChoice(0, new MaterialDialog.ListCallbackSingleChoice() {
                         @Override
-                        public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                            runProgram(prList[which]);
-                            runProgramFlag = true;
+                        public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                            selectedProgram = which;
+                            return true;
+                        }
+                    })
+                    .alwaysCallSingleChoiceCallback()
+                    .positiveText("Run")
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            Log.d("asdd", "Run: "+ selectedProgram);
+                            runProgram(prList[selectedProgram]);
+                        }
+                    })
+                    .negativeText("Delete")
+                    .onNegative(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            Log.d("asdd", "Delete: "+ selectedProgram);
+                            File file = new File(getActivity().getFilesDir().getPath(), prList[selectedProgram]);
+                            file.delete();
                         }
                     })
                     .show();
@@ -124,7 +140,6 @@ public class ProgrammingFragment extends Fragment {
             Toast.makeText(getActivity(), "Can't open file", Toast.LENGTH_SHORT).show();
         }
 
-
         return text;
 
     }
@@ -132,6 +147,7 @@ public class ProgrammingFragment extends Fragment {
 
     private void runProgram(String file_string) {
         try {
+            runProgramFlag = true;
             JSONObject obj = new JSONObject(fileRead(file_string));
             action = (String) obj.get("action");
             condition = (String) obj.get("condition");
