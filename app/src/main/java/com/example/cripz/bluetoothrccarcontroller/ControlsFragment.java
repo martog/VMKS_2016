@@ -8,22 +8,18 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 public class ControlsFragment extends Fragment {
     private View rootView;
-    private ToggleButton a_o;
     private ImageButton forwardButton;
     private ImageButton reverseButton;
     private ImageButton leftButton;
     private ImageButton rightButton;
     private SeekBar speedBar;
     private String speedState = "3";
-    private boolean a_o_flag = false;
 
     private void sendMessage(String msg) {
         ((Main)(getActivity())).sendMessage(msg);
@@ -59,21 +55,7 @@ public class ControlsFragment extends Fragment {
         reverseButton = (ImageButton) rootView.findViewById(R.id.reverse_btn);
         leftButton = (ImageButton) rootView.findViewById(R.id.left_btn);
         rightButton = (ImageButton) rootView.findViewById(R.id.right_btn);
-        a_o = (ToggleButton) rootView.findViewById(R.id.a_o_id);
-        a_o.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    sendMessage("p");
-                    a_o_flag = true;
-                }else{
-                    sendMessage("o");
-                    sendMessage("k");
-                    sendMessage("g");
-                    a_o_flag = false;
-                }
-            }
-        });
+
         forwardButton.setOnTouchListener(touchListener);
         reverseButton.setOnTouchListener(touchListener);
         leftButton.setOnTouchListener(touchListener);
@@ -83,6 +65,7 @@ public class ControlsFragment extends Fragment {
 
     private void initializeSpeedBar(){
         speedBar = (SeekBar) rootView.findViewById(R.id.speed_bar);
+        speedBar.setProgress(100);
         speedBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -124,7 +107,6 @@ public class ControlsFragment extends Fragment {
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            if (!a_o_flag) {
                 switch (v.getId()) {
                     case R.id.forward_btn:
                         //forward button is called
@@ -170,7 +152,6 @@ public class ControlsFragment extends Fragment {
                         }
                         break;
                 }
-            }
             return true;
         }
     }

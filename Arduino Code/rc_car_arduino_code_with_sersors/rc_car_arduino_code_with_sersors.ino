@@ -22,8 +22,7 @@ BH1750FVI LightSensor;
 #define battery A2
 
 boolean auto_lights_flag = false;
-boolean a_o_flag = false;
-short speed_state = 2;
+short speed_state = 3;
 
 // ThreadController that will control all threads
 ThreadController controll = ThreadController();
@@ -164,7 +163,7 @@ void measure_battery() {
   // Serial.print("\n");
   //Serial.print("Battery Voltage: ");
   //Serial.print(voltage);
-  // Serial.print("\n");
+  //Serial.print("\n");
 }
 
 void distance_sensor() {
@@ -177,29 +176,9 @@ void distance_sensor() {
   dst.toCharArray(buff, buff_size + 1);
   ble_write_bytes((unsigned char *)buff, buff_size);
   
-  Serial.print("Distance: ");
-  Serial.print(distance);
-  Serial.print("\n");
-  
-  if(a_o_flag) {
-    go_forward();
-    if (distance <= 20 && distance > 0) {
-      stop_forward();
-      while(measure_distance() < 20) {
-        go_backward();
-      }
-      stop_backward();
-      delay(2000);
-      go_right();
-      go_forward();
-      delay(1400);
-      stop_right();
-      go_left();
-      delay(620);
-      stop_left();
-      stop_forward();
-    }
-  }
+  //Serial.print("Distance: ");
+  //Serial.print(distance);
+  //Serial.print("\n");
 }
 
 int measure_distance() { 
@@ -241,11 +220,6 @@ void light_sensor() {
     //Serial.print(auto_light);
     //Serial.print("\n");
   }
-
-  //Serial.print("ORIGINAL Light: ");
-  //Serial.print(light_sen_lux);
-  //Serial.print(" lux");
-  //Serial.print("\n");
 }
 
 void loop()
@@ -284,12 +258,6 @@ void loop()
     case '2': speed_state = 2;
       break;
     case '3': speed_state = 3;
-      break;
-    case 'p': a_o_flag = true;
-      break;
-    case 'o': 
-      a_o_flag = false;
-      stop_forward();
       break;
   }
   ble_do_events();
