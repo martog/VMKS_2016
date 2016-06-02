@@ -6,23 +6,33 @@
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/new_btn"
         style="@style/main_button_text"
-        android:layout_width="180dp"
+        android:layout_width="130dp"
         android:layout_height="50dp"
         android:background="@drawable/button_background"
         android:text="New"
+        android:layout_marginStart="50dp"
         android:layout_centerVertical="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="69dp" />
+        android:layout_alignParentStart="true" />
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/open_btn"
         style="@style/main_button_text"
-        android:layout_width="180dp"
+        android:layout_width="130dp"
         android:layout_height="50dp"
         android:background="@drawable/button_background"
         android:text="Open"
-        android:layout_marginEnd="69dp"
         android:layout_alignTop="@+id/new_btn"
-        android:layout_alignParentEnd="true" />
+        android:layout_centerHorizontal="true" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/stop_btn"
+        style="@style/main_button_text"
+        android:layout_width="130dp"
+        android:layout_height="50dp"
+        android:background="@drawable/button_background"
+        android:text="Stop"
+        android:layout_marginStart="50dp"
+        android:layout_alignTop="@+id/open_btn"
+        android:layout_toEndOf="@+id/open_btn" />
 
 </RelativeLayout>

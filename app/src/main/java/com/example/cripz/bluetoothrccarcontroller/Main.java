@@ -65,7 +65,7 @@ public class Main extends MenuActivity {
         }
     };
 
-    public boolean eventHappen(String sSign, String sType, String sValue) {
+    private boolean eventHappen(String sSign, String sType, String sValue) {
         if (sType.equals("distance")) {
             switch (sSign) {
                 case "<":
@@ -119,7 +119,7 @@ public class Main extends MenuActivity {
         return eventHappenFlag;
     }
 
-    public void doAction(String action) {
+    private void doAction(String action) {
         switch (action) {
             case "go_forward":
                 sendMessage("f"); //go forward
@@ -163,7 +163,6 @@ public class Main extends MenuActivity {
                 sendMessage("g"); //stop backward
                 sendMessage("h"); //stop left
                 sendMessage("j"); //stop right
-                Log.d("aaa", "Stay called...");
                 break;
 
             case "lights_on":
