@@ -23,8 +23,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import static android.os.SystemClock.sleep;
-
 
 public class ProgrammingFragment extends Fragment {
     private View rootView;
@@ -35,12 +33,15 @@ public class ProgrammingFragment extends Fragment {
     public static String sensorType = "";
     public static String sensorValue = "";
 
+
     private void sendMessage(String msg) {
-        ((Main) (getActivity())).sendMessage(msg);
+        ((Main)(getActivity())).sendMessage(msg);
     }
 
     public void showFilesInDirectory(String filesType) {
+
         int jsonCounter = 0;
+        //checks how many json files are in the directory
         File programs[] = new File(getActivity().getFilesDir().getPath()).listFiles();
         for (File program : programs) {
             if (program.getName().contains(filesType)) {
@@ -127,8 +128,6 @@ public class ProgrammingFragment extends Fragment {
         return text;
 
     }
-
-
 
 
     private void runProgram(String file_string) {

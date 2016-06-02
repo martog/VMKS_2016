@@ -32,21 +32,21 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 public class Main extends MenuActivity {
-    ProgrammingFragment eventHappenInst = new ProgrammingFragment();
 
     FragmentManager manager;
     public static ImageButton carLights;
     public static Switch lightsSwitch;
     private Boolean autoLightsFlag = false;
-    public static Boolean shortLightsFlag = false;
     private Boolean longLightsFlag = false;
-    private  int lightInt;
-    private  int distanceInt;
+    public static Boolean shortLightsFlag = false;
+    private int lightInt;
+    private int distanceInt;
     private String mDeviceName;
     private String mDeviceAddress;
     private static RBLService mBluetoothLeService;
+    private boolean eventHappenFlag = false;
+    private boolean actionFlag = false;
     private static Main mainInstance = null;
-    private boolean eventHappenFlag;
     ImageView batteryView;
     private static HashMap<UUID, BluetoothGattCharacteristic> map = new HashMap<>();
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -71,8 +71,6 @@ public class Main extends MenuActivity {
     };
 
     public boolean eventHappen(String sSign, String sType, String sValue) {
-        //int realTimeLight = ((Main)getActivity()).getLightValue();
-        //Log.d("fr", "dst:" + distanceInt + " <-----" );
         if (sType.equals("distance")) {
             switch (sSign) {
                 case "<":
@@ -122,11 +120,11 @@ public class Main extends MenuActivity {
                     break;
             }
         }
-        Log.d("aaa", "eventHappenFlag: " + eventHappenFlag +" <-----" );
+        Log.d("aaa", "eventHappenFlag: " + eventHappenFlag + " <-----");
         return eventHappenFlag;
     }
 
-    private void doAction(String action) {
+    public void doAction(String action) {
         switch (action) {
             case "go_forward":
                 sendMessage("f"); //go forward
@@ -171,8 +169,8 @@ public class Main extends MenuActivity {
                 sendMessage("h"); //stop left
                 sendMessage("j"); //stop right
                 Log.d("aaa", "Stay called...");
-
                 break;
+
             case "lights_on":
                 sendMessage("k"); //stop forward
                 sendMessage("g"); //stop backward
@@ -188,8 +186,6 @@ public class Main extends MenuActivity {
                 sendMessage("v"); //lights_off
 
         }
-
-
     }
 
     private void displayData(byte[] data) {
@@ -222,36 +218,28 @@ public class Main extends MenuActivity {
             }
 
             if (ProgrammingFragment.runProgramFlag) {
-                if (ProgrammingFragment.condition.equals("Do action until event happens")) {
-                    Log.d("aaa", "Do action...");
-                    doAction(ProgrammingFragment.action);
-                    if (eventHappen(ProgrammingFragment.sensorSign, ProgrammingFragment.sensorType, ProgrammingFragment.sensorValue)) {
-                        doAction("stay");
-                        ProgrammingFragment.runProgramFlag = false;
-                    }
-                } else if (ProgrammingFragment.condition.equals("Wait for event to happen and then do action")) {
+                if (ProgrammingFragment.condition.equals("Wait for event to happen and then do action")) {
                     Log.d("aaa", "Wait for event...");
                     if (eventHappen(ProgrammingFragment.sensorSign, ProgrammingFragment.sensorType, ProgrammingFragment.sensorValue)) {
                         doAction(ProgrammingFragment.action);
                         ProgrammingFragment.runProgramFlag = false;
                         Log.d("asd", "event: True");
                     }
-                    // eventHappen(ProgrammingFragment.sensorSign,ProgrammingFragment.sensorType,ProgrammingFragment.sensorValue);
+                } else if (ProgrammingFragment.condition.equals("Do action until event happens")) {
+                    if (!actionFlag) {
+                        doAction(ProgrammingFragment.action);
+                        actionFlag = true;
+                    }
+                    if (eventHappen(ProgrammingFragment.sensorSign, ProgrammingFragment.sensorType, ProgrammingFragment.sensorValue)) {
+                        doAction("stay");
+                        ProgrammingFragment.runProgramFlag = false;
+                        actionFlag = false;
+                    }
                 }
-
-
             }
         }
     }
 
-//    public int getDistanceValue() {
-//        Log.d("fr", "Distance:  " + distanceInt);
-//        return distanceInt;
-//    }
-
-//    public int getLightValue() {
-//        return lightInt;
-//    }
 
     private void setBatteryImage(float voltage) {
         if (voltage > 4.00) {
@@ -297,13 +285,13 @@ public class Main extends MenuActivity {
         mBluetoothLeService.writeCharacteristic(characteristic);
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         Toolbar toolbar = (Toolbar) findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
+
         mainInstance = this;
         mDeviceAddress = getIntent().getStringExtra(Devices.EXTRA_DEVICE_ADDRESS);
         Intent gattServiceIntent = new Intent(this, RBLService.class);
