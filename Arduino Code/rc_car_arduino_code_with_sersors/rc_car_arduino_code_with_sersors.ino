@@ -21,7 +21,6 @@ BH1750FVI LightSensor;
 #define tail_lights 4
 #define battery A2
 
-boolean auto_lights_flag = false;
 short speed_state = 3;
 
 // ThreadController that will control all threads
@@ -200,26 +199,7 @@ void light_sensor() {
 
   light.toCharArray(buff, buff_size + 1);
   ble_write_bytes((unsigned char *)buff, buff_size);
-
-  if (auto_lights_flag) {
-    int auto_light = light_sen_lux / 212;
-    if (auto_light < 15) {
-      auto_light = auto_light * 17;
-    }
-
-    if (auto_light >= 255) {
-      auto_light = 255;
-    }
-
-    analogWrite(left_headlight, 255 - auto_light);
-    analogWrite(right_headlight, 255 - auto_light);
-    digitalWrite(tail_lights, HIGH);
-
-
-    // Serial.print("Light AUTO: ");
-    //Serial.print(auto_light);
-    //Serial.print("\n");
-  }
+  
 }
 
 void loop()
@@ -246,12 +226,6 @@ void loop()
     case 'm': car_long_lights_on();
       break;
     case 'v': car_lights_off();
-      break;
-    case 'x': auto_lights_flag = true;
-      break;
-    case 'z':
-      auto_lights_flag = false;
-      car_lights_off();
       break;
     case '1': speed_state = 1;
       break;

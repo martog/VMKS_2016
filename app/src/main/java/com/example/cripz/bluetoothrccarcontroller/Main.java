@@ -21,12 +21,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -35,8 +32,6 @@ public class Main extends MenuActivity {
 
     FragmentManager manager;
     public static ImageButton carLights;
-    public static Switch lightsSwitch;
-    private Boolean autoLightsFlag = false;
     private Boolean longLightsFlag = false;
     public static Boolean shortLightsFlag = false;
     private int lightInt;
@@ -304,29 +299,10 @@ public class Main extends MenuActivity {
 
     private void initializeCarLightsButton() {
         carLights = (ImageButton) findViewById(R.id.car_lights);
-        lightsSwitch = (Switch) findViewById(R.id.auto_lights_id);
-
-        lightsSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    autoLightsFlag = true;
-                    sendMessage("x");
-                    carLights.setBackgroundResource(R.drawable.denied_lights);
-                } else {
-                    autoLightsFlag = false;
-                    shortLightsFlag = false;
-                    longLightsFlag = false;
-                    sendMessage("z");
-                    carLights.setBackgroundResource(R.drawable.short_off);
-                }
-            }
-        });
 
         carLights.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!autoLightsFlag) {
                     if (!longLightsFlag) {
                         if (shortLightsFlag) {
                             carLights.setBackgroundResource(R.drawable.short_off);
@@ -338,28 +314,20 @@ public class Main extends MenuActivity {
                             shortLightsFlag = true;
                         }
                     }
-                } else {
-                    Toast.makeText(getApplicationContext(), "Please turn off auto lights!", Toast.LENGTH_SHORT).show();
                 }
-
-            }
         });
 
         carLights.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (!autoLightsFlag) {
-                    if (longLightsFlag) {
-                        carLights.setBackgroundResource(R.drawable.short_on);
-                        sendMessage("n");
-                        longLightsFlag = false;
-                    } else {
-                        carLights.setBackgroundResource(R.drawable.long_on);
-                        sendMessage("m");
-                        longLightsFlag = true;
-                    }
+                if (longLightsFlag) {
+                    carLights.setBackgroundResource(R.drawable.short_on);
+                    sendMessage("n");
+                    longLightsFlag = false;
                 } else {
-                    Toast.makeText(getApplicationContext(), "Please turn off auto lights!", Toast.LENGTH_SHORT).show();
+                    carLights.setBackgroundResource(R.drawable.long_on);
+                    sendMessage("m");
+                    longLightsFlag = true;
                 }
                 return true;
             }
