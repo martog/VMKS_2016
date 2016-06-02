@@ -5,11 +5,16 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -21,11 +26,16 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
-public class ProgrammingFragment extends Fragment {
+public class ProgrammingFragment extends Fragment implements AdapterView.OnItemSelectedListener{
     private View rootView;
+
     public static boolean runProgramFlag = false;
     public static String action = "";
     public static String condition = "";
@@ -33,7 +43,56 @@ public class ProgrammingFragment extends Fragment {
     public static String sensorType = "";
     public static String sensorValue = "";
     private int selectedProgram;
+    private String selectedAction = "no_action";
+    private String selectedCondition = "no_condition";
+    private EditText et;
+    private HashMap<String, String> programsConfig = new HashMap<>();
+    private List<String> sensor = new ArrayList<>();
+    private List<String> signs = new ArrayList<>();
 
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        rootView = inflater.inflate(R.layout.programming_fragment, container, false);
+        return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        buttonInit();
+        /*
+        programsConfig.put("action", "go_forward");
+        programsConfig.put("another_option", "test");
+        programsConfig.put("state", "asd");
+        programsConfig.put("condition", "light");
+
+        JSONObject jsonObject = new JSONObject(programsConfig);
+        String jsonString = jsonObject.toString();
+        fileWrite("newProgram.json", jsonString);
+
+        String condition = "";
+        String action = "";
+        JSONObject obj = null;
+
+        try {
+            obj = new JSONObject(fileRead("newProgram.json"));
+            action = (String) obj.get("action");
+            condition = (String) obj.get("condition");
+            switch (condition) {
+                case "light":
+                    sendMessage("n");
+                    Main.carLights.setBackgroundResource(R.drawable.short_on);
+                    Main.shortLightsFlag = true;
+                    break;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+*/
+    }
 
     public void showFilesInDirectory(String filesType) {
 
@@ -71,7 +130,6 @@ public class ProgrammingFragment extends Fragment {
                     .onPositive(new MaterialDialog.SingleButtonCallback() {
                         @Override
                         public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            Log.d("asdd", "Run: "+ selectedProgram);
                             runProgram(prList[selectedProgram]);
                         }
                     })
@@ -79,7 +137,6 @@ public class ProgrammingFragment extends Fragment {
                     .onNegative(new MaterialDialog.SingleButtonCallback() {
                         @Override
                         public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            Log.d("asdd", "Delete: "+ selectedProgram);
                             File file = new File(getActivity().getFilesDir().getPath(), prList[selectedProgram]);
                             file.delete();
                         }
@@ -144,6 +201,17 @@ public class ProgrammingFragment extends Fragment {
 
     }
 
+    private void fileWrite(String fileName, String text) {
+        try {
+            File file = new File(getActivity().getFilesDir().getPath(), fileName);
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write(text);
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void runProgram(String file_string) {
         try {
@@ -205,10 +273,7 @@ public class ProgrammingFragment extends Fragment {
         buttonNew.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SetupBlocksFragment setupBlocksFragment = new SetupBlocksFragment();
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, setupBlocksFragment)
-                        .commit();
+                setCondition();
             }
         });
         buttonOpen.setOnClickListener(new View.OnClickListener() {
@@ -219,47 +284,143 @@ public class ProgrammingFragment extends Fragment {
         });
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.programming_fragment, container, false);
-        return rootView;
+    private void setCondition() {
+        //Do action until event happens - 1
+        //Wait for event to happen and then do action - 2
+        final String[] conditions = {"Do action until event happens", "Wait for event to happen and then do action"};
+        new MaterialDialog.Builder(getActivity())
+                .title("Select Condition")
+                .items(conditions)
+                .itemsCallback(new MaterialDialog.ListCallback() {
+                    @Override
+                    public void onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
+                        selectedCondition = conditions[which];
+                        programsConfig.put("condition", selectedCondition);
+                        setAction();
+                    }
+                })
+                .show();
+    }
+
+    private void setAction() {
+        String[] actions = {"go_forward", "go_backward", "go_forward_right", "go_backward_right", "go_forward_left",
+                "go_backward_left", "lights_on", "lights_off", "stay"};
+        new MaterialDialog.Builder(getActivity())
+                .title("Select Action")
+                .items(actions)
+                .itemsCallback(new MaterialDialog.ListCallback() {
+                    @Override
+                    public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                        switch (which) {
+                            case 0:
+                                selectedAction = "go_forward";
+                                break;
+                            case 1:
+                                selectedAction = "go_backward";
+                                break;
+                            case 2:
+                                selectedAction = "go_forward_right";
+                                break;
+                            case 3:
+                                selectedAction = "go_backward_right";
+                                break;
+                            case 4:
+                                selectedAction = "go_forward_left";
+                                break;
+                            case 5:
+                                selectedAction = "go_backward_left";
+                                break;
+                            case 6:
+                                selectedAction = "lights_on";
+                                break;
+                            case 7:
+                                selectedAction = "lights_off";
+                                break;
+                            case 8:
+                                selectedAction = "stay";
+                                break;
+                        }
+                        programsConfig.put("action", selectedAction);
+                        setEvent();
+                    }
+                })
+                .show();
+    }
+
+    private void setEvent() {
+        // String[] sensors = {"distance", "light"};
+        // String[] signs = {"<", ">", "="};
+        boolean wrapInScrollView = true;
+
+        MaterialDialog.Builder md=new MaterialDialog.Builder(getActivity());
+        LayoutInflater factory = LayoutInflater.from(getActivity());
+        final View stdView = factory.inflate(R.layout.events_view, null);
+        Spinner spinner = (Spinner)stdView.findViewById(R.id.spinner);
+        Spinner spinner2 = (Spinner)stdView.findViewById(R.id.spinner2);
+        et = (EditText)stdView.findViewById(R.id.editText);
+
+        spinner.setOnItemSelectedListener(this);
+        spinner2.setOnItemSelectedListener(this);
+
+        sensor.add("distance");
+        sensor.add("light");
+        signs.add("=");
+        signs.add("<");
+        signs.add(">");
+
+
+
+        ArrayAdapter<String> sensorAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, sensor);
+        sensorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(sensorAdapter);
+
+        ArrayAdapter<String> signAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, signs);
+        signAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner2.setAdapter(signAdapter);
+
+        md.title("Event options")
+                .customView(stdView, wrapInScrollView)
+                .positiveText("OK")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(MaterialDialog dialog, DialogAction which) {
+                        programsConfig.put("sensorValue", et.getText().toString());
+                        saveFile();
+                    }
+                })
+                .show();
+
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        buttonInit();
-        /*
-        programsConfig.put("action", "go_forward");
-        programsConfig.put("another_option", "test");
-        programsConfig.put("state", "asd");
-        programsConfig.put("condition", "light");
-
-        JSONObject jsonObject = new JSONObject(programsConfig);
-        String jsonString = jsonObject.toString();
-        fileWrite("newProgram.json", jsonString);
-
-        String condition = "";
-        String action = "";
-        JSONObject obj = null;
-
-        try {
-            obj = new JSONObject(fileRead("newProgram.json"));
-            action = (String) obj.get("action");
-            condition = (String) obj.get("condition");
-            switch (condition) {
-                case "light":
-                    sendMessage("n");
-                    Main.carLights.setBackgroundResource(R.drawable.short_on);
-                    Main.shortLightsFlag = true;
-                    break;
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        switch(parent.getId()){
+            case R.id.spinner:
+                programsConfig.put("sensorType",sensor.get(position) );
+                break;
+            case R.id.spinner2:
+                programsConfig.put("sensorSign",signs.get(position) );
+                break;
         }
+    }
 
-*/
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    private void saveFile() {
+        new MaterialDialog.Builder(getActivity())
+                .inputType(InputType.TYPE_CLASS_TEXT)
+                .input("Program name", "", new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(MaterialDialog dialog, CharSequence input) {
+                        JSONObject jsonObject = new JSONObject(programsConfig);
+                        String jsonString = jsonObject.toString();
+                        fileWrite(input.toString() + ".json", jsonString);
+                        Toast.makeText(getActivity(), "Saved!", Toast.LENGTH_SHORT).show();
+                    }
+                }).show();
     }
 
 }
