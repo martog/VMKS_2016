@@ -22,6 +22,8 @@ BH1750FVI LightSensor;
 #define battery A2
 
 short speed_state = 3;
+int old_distance = 0;
+int old_lux = 0;
 
 // ThreadController that will control all threads
 ThreadController controll = ThreadController();
@@ -168,16 +170,16 @@ void measure_battery() {
 void distance_sensor() {
   String dst;
   int distance = measure_distance();
-  dst = "d" + String(distance) + " ";
-  int buff_size = dst.length();
-  char buff[buff_size + 1];
-
-  dst.toCharArray(buff, buff_size + 1);
-  ble_write_bytes((unsigned char *)buff, buff_size);
   
-  //Serial.print("Distance: ");
-  //Serial.print(distance);
-  //Serial.print("\n");
+  if(old_distance != distance) {
+    old_distance = distance;
+    dst = "d" + String(distance) + " ";
+    int buff_size = dst.length();
+    char buff[buff_size + 1];
+  
+    dst.toCharArray(buff, buff_size + 1);
+    ble_write_bytes((unsigned char *)buff, buff_size);
+ }
 }
 
 int measure_distance() { 
@@ -190,16 +192,18 @@ int measure_distance() {
   return distance;
 }
 
+
 void light_sensor() {
   uint16_t light_sen_lux = LightSensor.GetLightIntensity();// Get Lux value
-  String light = "l" + String(light_sen_lux) + " ";
+  if(old_lux != light_sen_lux) {
+    old_lux = light_sen_lux;
+    String light = "l" + String(light_sen_lux) + " ";
+    int buff_size = light.length();
+    char buff[buff_size + 1];
 
-  int buff_size = light.length();
-  char buff[buff_size + 1];
-
-  light.toCharArray(buff, buff_size + 1);
-  ble_write_bytes((unsigned char *)buff, buff_size);
-  
+    light.toCharArray(buff, buff_size + 1);
+    ble_write_bytes((unsigned char *)buff, buff_size);
+  }
 }
 
 void loop()
