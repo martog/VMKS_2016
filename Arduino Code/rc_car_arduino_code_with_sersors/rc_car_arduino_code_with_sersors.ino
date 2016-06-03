@@ -173,6 +173,10 @@ void distance_sensor() {
   
   if(old_distance != distance) {
     old_distance = distance;
+    
+    if(distance < 0) {
+      distance = 0;
+    }
     dst = "d" + String(distance) + " ";
     int buff_size = dst.length();
     char buff[buff_size + 1];
@@ -194,9 +198,12 @@ int measure_distance() {
 
 
 void light_sensor() {
-  uint16_t light_sen_lux = LightSensor.GetLightIntensity();// Get Lux value
+  int light_sen_lux = LightSensor.GetLightIntensity();// Get Lux value
   if(old_lux != light_sen_lux) {
     old_lux = light_sen_lux;
+    if(light_sen_lux < 0) {
+      light_sen_lux = 0;
+    }
     String light = "l" + String(light_sen_lux) + " ";
     int buff_size = light.length();
     char buff[buff_size + 1];
@@ -204,6 +211,7 @@ void light_sensor() {
     light.toCharArray(buff, buff_size + 1);
     ble_write_bytes((unsigned char *)buff, buff_size);
   }
+  
 }
 
 void loop()
