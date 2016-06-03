@@ -44,11 +44,7 @@ public class Devices extends MenuActivity {
             setContentView(R.layout.devices_activity_landscape_mode);
         }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.app_bar);
-        setSupportActionBar(toolbar);
-        if(getSupportActionBar()!=null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
-        }
+        toolbarInit();
 
         //checks if the device supports BLE
         if (!getPackageManager().hasSystemFeature(
@@ -72,8 +68,20 @@ public class Devices extends MenuActivity {
             searchForAvailableDevices();
         }
 
-        Button btn = (Button) findViewById(R.id.main_btn);
-        btn.setOnClickListener(new OnClickListener() {
+        buttonInit();
+    }
+
+    private void toolbarInit() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+        }
+    }
+
+    private void buttonInit() {
+        Button connectButton = (Button) findViewById(R.id.main_btn);
+        connectButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(intent);
@@ -90,14 +98,10 @@ public class Devices extends MenuActivity {
             setContentView(R.layout.devices_activity_portrait_mode);
         } else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             setContentView(R.layout.devices_activity_landscape_mode);
-
         }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.app_bar);
-        setSupportActionBar(toolbar);
-        if(getSupportActionBar()!=null){
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
-        }
+        toolbarInit();
+        buttonInit();
     }
 
     public void buildRoundProcessDialog(Context mContext) {
