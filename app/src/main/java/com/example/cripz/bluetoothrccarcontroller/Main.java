@@ -236,9 +236,9 @@ public class Main extends MenuActivity {
 
 
     private void setBatteryImage(float voltage) {
-        if (voltage > 4.00) {
+        if (voltage > 4.30) {
             batteryView.setImageResource(R.drawable.battery_full);
-        } else if (voltage > 2.80) {
+        } else if (voltage > 3.10) {
             batteryView.setImageResource(R.drawable.battery_mid);
         } else if (voltage > 2.10) {
             batteryView.setImageResource(R.drawable.battery_low);

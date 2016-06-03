@@ -82,10 +82,10 @@ void go_forward() {
   delay(60);
   switch (speed_state) {
     case 1:
-      analogWrite(forward, 135);
+      analogWrite(forward, 170);
       break;
     case 2:
-      analogWrite(forward, 190);
+      analogWrite(forward, 220);
       break;
     case 3:
       analogWrite(forward, 255);
@@ -98,10 +98,10 @@ void go_backward() {
   delay(60);
   switch (speed_state) {
     case 1:
-      analogWrite(backward, 135);
+      analogWrite(backward, 170);
       break;
     case 2:
-      analogWrite(backward, 190);
+      analogWrite(backward, 220);
       break;
     case 3:
       analogWrite(backward, 255);
